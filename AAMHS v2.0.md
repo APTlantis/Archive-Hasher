@@ -1,0 +1,92 @@
+# AAMHS v2.0 - Aptlantis Archive Multi-Hash Standard
+
+The Aptlantis Archive Multi-Hash Standard (AAMHS) ensures long-term integrity and verification diversity for archival snapshots published by the Aptlantis Project.
+
+AAMHS v2.0 defines:
+
+- the required archive hash suite
+- the canonical `snapshot-hashes.txt` manifest format
+- detached signing as a separate workflow
+- validator expectations for comparing a published artifact to its manifest
+
+## 1. Scope
+
+AAMHS hashes the published archive artifact as a single byte stream. It does not hash individual packages inside the archive and does not republish upstream package signatures, keyrings, or package-level metadata.
+
+## 2. Hash Suite
+
+Each snapshot MUST generate and publish the following hash set:
+
+| Algorithm | Role | Notes |
+| --- | --- | --- |
+| **SHA-512** | Conservative baseline | SHA-2 family baseline with broad tooling support |
+| **SHA3-512** | Sponge | SHA-3 sponge-family digest |
+| **SHAKE256-512** | PQ baseline | 64-byte SHAKE256 XOF output |
+| **SHAKE256-1024** | Long-term archival | 128-byte SHAKE256 XOF output |
+| **K12** | Fast Keccak | KangarooTwelve digest with 32-byte output |
+| **BLAKE3-512** | Fast + strong | BLAKE3 with 64-byte output |
+| **BLAKE2bp** | Parallel ARX diversity | Four-lane BLAKE2b tree hashing |
+| **CRC32** | Legacy/tooling | IEEE CRC-32 for compatibility |
+
+AAMHS v2.0 manifests emit only this suite. AAMHS v1.0 legacy hashes such as SHA256, SHA3-256, BLAKE3-256, and xxHash64 are not included.
+
+## 3. Required Output File
+
+The canonical output filename is:
+
+```text
+snapshot-hashes.txt
+```
+
+Canonical layout:
+
+```text
+# Aptlantis Archive Multi-Hash Standard (AAMHS v2.0)
+snapshot_name: <snapshot-name>
+snapshot_format: <zip|tar.zst|tar.gz|tar.xz|torrent|...>
+snapshot_size_bytes: <bytes>
+snapshot_date_utc: <RFC3339 UTC timestamp>
+schema_version: 2.0
+
+[Hashes]
+SHA-512:        <hex>
+SHA3-512:       <hex>
+SHAKE256-512:   <hex>
+SHAKE256-1024:  <hex>
+K12:            <hex>
+BLAKE3-512:     <hex>
+BLAKE2bp:       <hex>
+CRC32:          <hex>
+
+[Notes]
+Generated-By: AAMHS Archive Hasher v2.0
+Documentation: https://aptlantis.net/aamhs
+```
+
+The manifest MUST NOT embed detached signatures, inline PGP payloads, PQ signature blocks, or upstream package-signing metadata.
+
+## 4. Signing
+
+The hasher writes `snapshot-hashes.txt`. The signer then creates an adjacent detached signature:
+
+```text
+snapshot-hashes.txt.asc
+```
+
+Signing must not regenerate, reinterpret, or mutate the manifest contents.
+
+## 5. Verification
+
+A compliant validator MUST:
+
+1. Read `snapshot-hashes.txt`.
+2. Validate the canonical field structure.
+3. Compute all required hashes over the published archive artifact bytes.
+4. Compare each computed hash to the manifest values.
+5. Compare the observed byte size with `snapshot_size_bytes`.
+6. Verify detached signatures through the signing workflow when signatures are present.
+7. Report any mismatch deterministically.
+
+## 6. Forward Compatibility
+
+Future AAMHS revisions may add richer metadata, transparency-log integration, notarization, or attestation layers. No v2.0 required field should be removed without a documented transition.

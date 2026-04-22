@@ -1,0 +1,44 @@
+[project]
+id = "ArchiveHasher"
+title = "Archive-Hasher"
+description = "Dual-CLI Go tool implementing the AAMHS publication workflow: hash archive artifacts and sign manifests with PGP"
+type = "security"
+stage = "active"
+version = "2.0.0"
+tags = ["security"]
+
+[metadata]
+created = "2026-04-09"
+last_updated = "2026-04-22"
+maintainer = "Aptlantis"
+license = "MIT"
+language_primary = "Go"
+languages_used = ["Go"]
+
+[runtime]
+platform = "cli"
+environment = ""
+services = []
+storage = []
+
+[relationships]
+depends_on_projects = ["Go", "SHA-3", "BLAKE3", "BLAKE2bp", "OpenPGP"]
+used_by_projects = []
+external_dependencies = []
+
+[artifacts]
+produces = ["snapshot-hashes.txt", "snapshot-hashes.txt.asc"]
+consumes = ["archive-artifacts", "pgp-private-key"]
+
+[documentation]
+writerside_topic = "archive-hasher.md"
+readme = "README.md"
+
+[structure]
+repo_path = "A:\\AptWeb\\zypper-operations\\Archive-Hasher"
+
+[automation]
+build = ""
+tasks = []
+
+[notes]

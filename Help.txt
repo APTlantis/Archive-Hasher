@@ -1,0 +1,41 @@
+PS A:\AptWeb\zypper-operations\Archive-Hasher\cmd\archive-hasher> go run main.go --help
+Usage of C:\Users\ADMINI~1\AppData\Local\Temp\go-build3651438502\b001\exe\main.exe:
+  -format string
+        Snapshot format override (default: derived from extension)
+  -output-basename string
+        Base filename without extension for generated outputs (default "snapshot-hashes")
+  -output-dir string
+        Directory for generated outputs (default: <artifact>.aamhs beside the artifact)
+  -overwrite
+        Overwrite existing outputs if present
+  -snapshot-datetime string
+        UTC datetime in RFC3339 format (default: artifact modified time)
+  -snapshot-name string
+        Friendly snapshot name (default: derived from artifact name)
+  -verbose
+        Print progress information
+		
+./Archive-Hasher -output-dir "A:\downloads\python" -verbose "A:\downloads\python\python-complete-1990-2026.tar.zst"
+
+
+
+
+
+
+Usage of C:\Users\ADMINI~1\AppData\Local\Temp\go-build2770085841\b001\exe\main.exe:
+  -key string
+        Path to an ASCII-armored PGP private key
+  -output string
+        Output path for the detached ASCII-armored signature (default: <manifest>.asc)
+  -overwrite
+        Overwrite an existing detached signature if present
+  -passphrase-env string
+        Environment variable that stores the private key passphrase
+  -verbose
+        Print progress information
+		
+		
+		
+		
+		
+./manifest-signer -key "B:\zypper-operations\Archive-Hasher\AptlantisSigningKey-Private.asc" -overwrite -verbose "A:\downloads\python\snapshot-hashes.txt"

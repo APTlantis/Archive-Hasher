@@ -1,0 +1,228 @@
+title = "APTlantis Project Manifest v2.2"
+type = "object"
+required = ["project", "metadata"]
+
+[properties.project]
+type = "object"
+required = ["id", "title", "type", "stage"]
+
+[properties.project.properties.id]
+type = "string"
+pattern = "[a-z0-9]"
+description = "Unique machine-friendly project identifier"
+
+[properties.project.properties.title]
+type = "string"
+description = "Human readable project name"
+
+[properties.project.properties.description]
+type = "string"
+
+[properties.project.properties.type]
+type = "string"
+enum = ["service", "tool", "generator", "pipeline", "library", "dataset", "ui", "dashboard", "infrastructure"]
+
+[properties.project.properties.stage]
+type = "string"
+enum = ["concept", "prototype", "active", "near-complete", "production", "archived"]
+
+[properties.project.properties.version]
+type = "string"
+
+[properties.project.properties.tags]
+type = "array"
+
+[properties.project.properties.tags.items]
+type = "string"
+
+[properties.metadata]
+type = "object"
+required = ["created", "language_primary"]
+
+[properties.metadata.properties.created]
+type = "string"
+format = "date"
+
+[properties.metadata.properties.last_updated]
+type = "string"
+format = "date"
+
+[properties.metadata.properties.completed]
+type = "string"
+format = "date"
+
+[properties.metadata.properties.maintainer]
+type = "string"
+
+[properties.metadata.properties.license]
+type = "string"
+
+[properties.metadata.properties.language_primary]
+type = "string"
+
+[properties.metadata.properties.languages_used]
+type = "array"
+
+[properties.metadata.properties.languages_used.items]
+type = "string"
+
+[properties.runtime]
+type = "object"
+required = ["platform"]
+
+[properties.runtime.properties.platform]
+type = "string"
+enum = ["desktop", "server", "cli", "container", "web", "library"]
+
+[properties.runtime.properties.environment]
+type = "string"
+
+[properties.runtime.properties.services]
+type = "array"
+
+[properties.runtime.properties.services.items]
+type = "string"
+
+[properties.runtime.properties.storage]
+type = "array"
+
+[properties.runtime.properties.storage.items]
+type = "string"
+
+[properties.relationships]
+type = "object"
+
+[properties.relationships.properties.depends_on_projects]
+type = "array"
+
+[properties.relationships.properties.depends_on_projects.items]
+type = "string"
+
+[properties.relationships.properties.used_by_projects]
+type = "array"
+
+[properties.relationships.properties.used_by_projects.items]
+type = "string"
+
+[properties.relationships.properties.external_dependencies]
+type = "array"
+
+[properties.relationships.properties.external_dependencies.items]
+type = "string"
+
+[properties.artifacts]
+type = "object"
+
+[properties.artifacts.properties.produces]
+type = "array"
+
+[properties.artifacts.properties.produces.items]
+type = "string"
+
+[properties.artifacts.properties.consumes]
+type = "array"
+
+[properties.artifacts.properties.consumes.items]
+type = "string"
+
+[properties.datasets]
+type = "array"
+
+[properties.datasets.items]
+type = "object"
+required = ["name", "format"]
+
+[properties.datasets.items.properties.name]
+type = "string"
+
+[properties.datasets.items.properties.description]
+type = "string"
+
+[properties.datasets.items.properties.format]
+type = "string"
+
+[properties.datasets.items.properties.size]
+type = "string"
+
+[properties.datasets.items.properties.location]
+type = "string"
+
+[properties.scripts]
+type = "array"
+
+[properties.scripts.items]
+type = "object"
+required = ["name", "language"]
+
+[properties.scripts.items.properties.name]
+type = "string"
+
+[properties.scripts.items.properties.language]
+type = "string"
+
+[properties.scripts.items.properties.role]
+type = "string"
+
+[properties.scripts.items.properties.status]
+type = "string"
+
+[properties.scripts.items.properties.version]
+type = "integer"
+
+[properties.documentation]
+type = "object"
+
+[properties.documentation.properties.writerside_topic]
+type = "string"
+
+[properties.documentation.properties.architecture_doc]
+type = "string"
+
+[properties.documentation.properties.readme]
+type = "string"
+
+[properties.links]
+type = "object"
+
+[properties.links.properties.repository]
+type = "string"
+format = "uri"
+
+[properties.links.properties.homepage]
+type = "string"
+format = "uri"
+
+[properties.links.properties.dashboard]
+type = "string"
+format = "uri"
+
+[properties.structure]
+type = "object"
+
+[properties.structure.properties.repo_path]
+type = "string"
+
+[properties.structure.properties.docs_path]
+type = "string"
+
+[properties.structure.properties.data_path]
+type = "string"
+
+[properties.automation]
+type = "object"
+
+[properties.automation.properties.build]
+type = "string"
+
+[properties.automation.properties.deploy]
+type = "string"
+
+[properties.automation.properties.tasks]
+type = "array"
+
+[properties.automation.properties.tasks.items]
+type = "string"
+
+[properties.notes]
+type = "object"
+additionalProperties = true
