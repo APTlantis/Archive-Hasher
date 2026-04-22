@@ -61,22 +61,27 @@ snapshot-hashes.txt.sphincs
 
 ## PQ Signature Envelope
 
-The PQ signature envelope is UTF-8 text:
+The PQ signature envelope is UTF-8 text with LF line endings (`\n`) and no UTF-8 BOM:
 
 ```text
 -----BEGIN AAMHS PQ SIGNATURE-----
-algorithm: SLH-DSA-SHAKE-256s
-signature_encoding: base64
-signed_artifact: snapshot-hashes.txt
-public_key_fingerprint_sha256: <hex>
+Version: 1
+Algorithm: SLH-DSA-SHAKE-256s
+Encoding: base64
+Artifact: snapshot-hashes.txt
+Public-Key-Fingerprint-SHA256: <hex>
 
 <base64 detached signature>
 -----END AAMHS PQ SIGNATURE-----
 ```
 
-The `.sphincs` filename is retained as a legacy-friendly label. The authoritative PQ algorithm identity is the envelope `algorithm` field.
+The `.sphincs` filename is retained as a legacy-friendly label. The authoritative PQ algorithm identity is the envelope `Algorithm` field.
 
-The `public_key_fingerprint_sha256` value is the lowercase hexadecimal SHA-256 digest of the DER-encoded public key material.
+`Version` MUST be `1` for this envelope format. `Encoding` MUST be `base64`. `Artifact` MUST identify the signed manifest filename.
+
+The `Public-Key-Fingerprint-SHA256` value is the lowercase hexadecimal SHA-256 digest of the DER-encoded public key material.
+
+Header fields MUST appear in exactly the order shown. Implementations MUST NOT reorder fields, omit the blank line before the base64 payload, add extra headers, or emit CRLF in canonical envelopes.
 
 ## v2.0 Requirements
 

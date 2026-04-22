@@ -44,6 +44,8 @@ Every AAMHS-compliant archive artifact MUST publish all of the following hashes:
 
 No AAMHS v1.0 legacy hashes are emitted in v2.0 manifests.
 
+`CRC32` MUST be the standard IEEE/ISO-HDLC CRC-32 variant using polynomial `0x04C11DB7`, reflected input/output, initial value `0xffffffff`, and final XOR `0xffffffff`. It MUST be encoded as exactly 8 lowercase hexadecimal characters.
+
 ## Canonical Output
 
 The canonical manifest filename is:
@@ -52,7 +54,7 @@ The canonical manifest filename is:
 snapshot-hashes.txt
 ```
 
-This file MUST be plaintext UTF-8 and MUST describe exactly one published archive artifact.
+This file MUST be plaintext UTF-8, MUST use LF line endings (`\n`), MUST NOT include a UTF-8 BOM, and MUST describe exactly one published archive artifact.
 
 Canonical layout:
 
@@ -85,6 +87,8 @@ Generated-By: AAMHS Archive Hasher v2.0
 Documentation: https://aptlantis.net/aamhs
 ```
 
+Fields and sections MUST appear in exactly the order shown. Implementations MUST NOT reorder fields, omit blank separator lines, add extra fields, or emit CRLF in canonical manifests.
+
 `snapshot-hashes.txt` MUST NOT embed detached signature payloads, inline PGP payloads, PQ signature blocks, or upstream package-signing metadata.
 
 ## Required Metadata Semantics
@@ -111,6 +115,8 @@ snapshot-hashes.txt.sphincs
 ```
 
 Detached signature files are adjacent publication artifacts, not part of the hash manifest schema itself.
+
+For AAMHS v2.0 compliance, both detached signature files are mandatory publication artifacts. A local unsigned or partially signed manifest MAY exist during generation, but it is not a complete published v2.0 set.
 
 ## Validation Workflow
 

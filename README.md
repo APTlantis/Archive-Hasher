@@ -92,7 +92,7 @@ Supported inputs:
 - optional PQ signature output path override
 - optional OpenSSL command path and PQ algorithm override
 
-The default PQ signature algorithm is `SLH-DSA-SHAKE-256s`. `snapshot-hashes.txt.sphincs` is retained as a legacy-friendly filename, while the envelope records `algorithm: SLH-DSA-SHAKE-256s` as the authoritative algorithm identity.
+The default PQ signature algorithm is `SLH-DSA-SHAKE-256s`. `snapshot-hashes.txt.sphincs` is retained as a legacy-friendly filename, while the envelope records `Version: 1` and `Algorithm: SLH-DSA-SHAKE-256s` as the authoritative format and algorithm identity. The public key fingerprint is SHA-256 over the DER-encoded public key.
 
 ## Standards
 

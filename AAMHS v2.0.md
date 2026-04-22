@@ -30,6 +30,8 @@ Each snapshot MUST generate and publish the following hash set:
 
 AAMHS v2.0 manifests emit only this suite. AAMHS v1.0 legacy hashes such as SHA256, SHA3-256, BLAKE3-256, and xxHash64 are not included.
 
+`CRC32` MUST be the standard IEEE/ISO-HDLC CRC-32 variant using polynomial `0x04C11DB7`, reflected input/output, initial value `0xffffffff`, and final XOR `0xffffffff`. It MUST be encoded as exactly 8 lowercase hexadecimal characters.
+
 ## 3. Required Output File
 
 The canonical output filename is:
@@ -69,6 +71,8 @@ Generated-By: AAMHS Archive Hasher v2.0
 Documentation: https://aptlantis.net/aamhs
 ```
 
+The manifest MUST be UTF-8 text with LF line endings (`\n`) and no UTF-8 BOM. Fields and sections MUST appear in exactly the order shown above. Implementations MUST NOT reorder fields, omit blank separator lines, add extra fields, or emit CRLF in canonical manifests.
+
 The manifest MUST NOT embed detached signature payloads, inline PGP payloads, PQ signature blocks, or upstream package-signing metadata.
 
 ## 4. Signing
@@ -82,7 +86,25 @@ snapshot-hashes.txt.sphincs
 
 `snapshot-hashes.txt.asc` is the detached ASCII-armored PGP signature. `snapshot-hashes.txt.sphincs` is an armored AAMHS PQ signature envelope containing a detached `SLH-DSA-SHAKE-256s` signature over the exact manifest bytes.
 
-The `.sphincs` extension is a legacy-friendly label. The PQ signature envelope uses `base64` for the detached signature payload and records `algorithm: SLH-DSA-SHAKE-256s`, the signed artifact name, and SHA-256 fingerprint of the public key material. Signing must not regenerate, reinterpret, or mutate the manifest contents.
+The `.sphincs` extension is a legacy-friendly label. The PQ signature envelope uses `base64` for the detached signature payload and records `Version: 1`, `Algorithm: SLH-DSA-SHAKE-256s`, the signed artifact name, and SHA-256 fingerprint of the public key material. The fingerprint is the lowercase hexadecimal SHA-256 digest of the DER-encoded public key. Signing must not regenerate, reinterpret, or mutate the manifest contents.
+
+For AAMHS v2.0 compliance, both detached signature files are mandatory publication artifacts. A manifest may be generated locally before signing, but a published v2.0 set is incomplete until both `snapshot-hashes.txt.asc` and `snapshot-hashes.txt.sphincs` are present and valid.
+
+The canonical PQ envelope structure is:
+
+```text
+-----BEGIN AAMHS PQ SIGNATURE-----
+Version: 1
+Algorithm: SLH-DSA-SHAKE-256s
+Encoding: base64
+Artifact: snapshot-hashes.txt
+Public-Key-Fingerprint-SHA256: <hex>
+
+<base64 detached signature>
+-----END AAMHS PQ SIGNATURE-----
+```
+
+The envelope MUST be UTF-8 text with LF line endings (`\n`) and no UTF-8 BOM. Header fields MUST appear in exactly the order shown.
 
 ## 5. Verification
 
@@ -93,8 +115,9 @@ A compliant validator MUST:
 3. Compute all required hashes over the published archive artifact bytes.
 4. Compare each computed hash to the manifest values.
 5. Compare the observed byte size with `snapshot_size_bytes`.
-6. Verify detached signatures through the signing workflow when signatures are present.
-7. Report any mismatch deterministically.
+6. Verify the detached PGP signature.
+7. Verify the detached PQ signature.
+8. Report any mismatch deterministically.
 
 ## 6. Forward Compatibility
 

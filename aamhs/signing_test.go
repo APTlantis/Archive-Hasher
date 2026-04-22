@@ -116,16 +116,20 @@ func TestPQSignatureEnvelopeRoundTrip(t *testing.T) {
 
 	required := []string{
 		"-----BEGIN AAMHS PQ SIGNATURE-----",
-		"algorithm: SLH-DSA-SHAKE-256s",
-		"signature_encoding: base64",
-		"signed_artifact: snapshot-hashes.txt",
-		"public_key_fingerprint_sha256: " + strings.Repeat("a", 64),
+		"Version: 1",
+		"Algorithm: SLH-DSA-SHAKE-256s",
+		"Encoding: base64",
+		"Artifact: snapshot-hashes.txt",
+		"Public-Key-Fingerprint-SHA256: " + strings.Repeat("a", 64),
 		"-----END AAMHS PQ SIGNATURE-----",
 	}
 	for _, fragment := range required {
 		if !strings.Contains(rendered, fragment) {
 			t.Fatalf("rendered envelope missing %q:\n%s", fragment, rendered)
 		}
+	}
+	if strings.Contains(rendered, "\r") {
+		t.Fatal("PQ signature envelope must use LF line endings only")
 	}
 
 	parsed, err := ReadPQSignatureEnvelope(strings.NewReader(rendered))
@@ -134,6 +138,9 @@ func TestPQSignatureEnvelopeRoundTrip(t *testing.T) {
 	}
 	if parsed.Algorithm != envelope.Algorithm {
 		t.Fatalf("Algorithm = %q, want %q", parsed.Algorithm, envelope.Algorithm)
+	}
+	if parsed.Version != "1" {
+		t.Fatalf("Version = %q, want 1", parsed.Version)
 	}
 	if parsed.SignatureEncoding != envelope.SignatureEncoding {
 		t.Fatalf("SignatureEncoding = %q, want %q", parsed.SignatureEncoding, envelope.SignatureEncoding)
@@ -152,10 +159,10 @@ func TestPQSignatureEnvelopeRoundTrip(t *testing.T) {
 func TestReadPQSignatureEnvelopeAcceptsLegacyHeaderNames(t *testing.T) {
 	input := strings.Join([]string{
 		"-----BEGIN AAMHS PQ SIGNATURE-----",
-		"Algorithm: SLH-DSA-SHAKE-256s",
-		"Signature-Encoding: base64",
-		"Signed-Artifact: snapshot-hashes.txt",
-		"Public-Key-Fingerprint-SHA256: " + strings.Repeat("b", 64),
+		"algorithm: SLH-DSA-SHAKE-256s",
+		"signature_encoding: base64",
+		"signed_artifact: snapshot-hashes.txt",
+		"public_key_fingerprint_sha256: " + strings.Repeat("b", 64),
 		"",
 		"bGVnYWN5IHNpZ25hdHVyZQ==",
 		"-----END AAMHS PQ SIGNATURE-----",
@@ -171,6 +178,29 @@ func TestReadPQSignatureEnvelopeAcceptsLegacyHeaderNames(t *testing.T) {
 	}
 	if !bytes.Equal(parsed.DetachedSignatureData, []byte("legacy signature")) {
 		t.Fatalf("DetachedSignatureData = %q, want legacy signature", parsed.DetachedSignatureData)
+	}
+}
+
+func TestReadPQSignatureEnvelopeRejectsUnsupportedVersion(t *testing.T) {
+	input := strings.Join([]string{
+		"-----BEGIN AAMHS PQ SIGNATURE-----",
+		"Version: 2",
+		"Algorithm: SLH-DSA-SHAKE-256s",
+		"Encoding: base64",
+		"Artifact: snapshot-hashes.txt",
+		"Public-Key-Fingerprint-SHA256: " + strings.Repeat("c", 64),
+		"",
+		"dmVyc2lvbiAy",
+		"-----END AAMHS PQ SIGNATURE-----",
+		"",
+	}, "\n")
+
+	_, err := ReadPQSignatureEnvelope(strings.NewReader(input))
+	if err == nil {
+		t.Fatal("ReadPQSignatureEnvelope should reject unsupported versions")
+	}
+	if !strings.Contains(err.Error(), "unsupported PQ signature envelope version") {
+		t.Fatalf("error = %v, want unsupported version detail", err)
 	}
 }
 

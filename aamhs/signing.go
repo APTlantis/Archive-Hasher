@@ -63,6 +63,7 @@ type OpenSSLPQSigner struct {
 }
 
 type PQSignatureEnvelope struct {
+	Version               string
 	Algorithm             string
 	SignatureEncoding     string
 	SignedArtifact        string
@@ -225,6 +226,12 @@ func (s OpenSSLPQSigner) CheckSupport() error {
 }
 
 func WritePQSignatureEnvelope(w io.Writer, envelope PQSignatureEnvelope) error {
+	if envelope.Version == "" {
+		envelope.Version = "1"
+	}
+	if envelope.Version != "1" {
+		return fmt.Errorf("unsupported PQ signature envelope version %q", envelope.Version)
+	}
 	if envelope.Algorithm == "" {
 		envelope.Algorithm = DefaultPQSignatureAlgorithm
 	}
@@ -247,8 +254,9 @@ func WritePQSignatureEnvelope(w io.Writer, envelope PQSignatureEnvelope) error {
 	encodedSignature := base64.StdEncoding.EncodeToString(envelope.DetachedSignatureData)
 	_, err := fmt.Fprintf(
 		w,
-		"-----BEGIN %s-----\nalgorithm: %s\nsignature_encoding: %s\nsigned_artifact: %s\npublic_key_fingerprint_sha256: %s\n\n%s\n-----END %s-----\n",
+		"-----BEGIN %s-----\nVersion: %s\nAlgorithm: %s\nEncoding: %s\nArtifact: %s\nPublic-Key-Fingerprint-SHA256: %s\n\n%s\n-----END %s-----\n",
 		pqSignatureArmorType,
+		envelope.Version,
 		envelope.Algorithm,
 		envelope.SignatureEncoding,
 		envelope.SignedArtifact,
@@ -301,11 +309,18 @@ func ReadPQSignatureEnvelope(r io.Reader) (PQSignatureEnvelope, error) {
 	}
 
 	envelope := PQSignatureEnvelope{
+		Version:               headers["version"],
 		Algorithm:             headers["algorithm"],
-		SignatureEncoding:     headers["signature_encoding"],
-		SignedArtifact:        headers["signed_artifact"],
+		SignatureEncoding:     headers["encoding"],
+		SignedArtifact:        headers["artifact"],
 		PublicKeyFingerprint:  headers["public_key_fingerprint_sha256"],
 		DetachedSignatureData: signatureData,
+	}
+	if envelope.Version == "" {
+		envelope.Version = "1"
+	}
+	if envelope.Version != "1" {
+		return PQSignatureEnvelope{}, fmt.Errorf("unsupported PQ signature envelope version %q", envelope.Version)
 	}
 	if envelope.SignatureEncoding != PQSignatureEncoding {
 		return PQSignatureEnvelope{}, fmt.Errorf("unsupported PQ signature encoding %q", envelope.SignatureEncoding)
@@ -318,12 +333,14 @@ func ReadPQSignatureEnvelope(r io.Reader) (PQSignatureEnvelope, error) {
 
 func canonicalPQEnvelopeHeaderName(name string) string {
 	switch strings.ToLower(strings.TrimSpace(name)) {
+	case "version":
+		return "version"
 	case "algorithm":
 		return "algorithm"
-	case "signature-encoding", "signature_encoding":
-		return "signature_encoding"
-	case "signed-artifact", "signed_artifact":
-		return "signed_artifact"
+	case "encoding", "signature-encoding", "signature_encoding":
+		return "encoding"
+	case "artifact", "signed-artifact", "signed_artifact":
+		return "artifact"
 	case "public-key-fingerprint-sha256", "public_key_fingerprint_sha256":
 		return "public_key_fingerprint_sha256"
 	default:
