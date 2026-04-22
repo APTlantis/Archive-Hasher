@@ -10,9 +10,13 @@ import (
 
 const (
 	SchemaVersion     = "2.0"
+	HashProfile       = "pq-balanced-8"
+	HashEncoding      = "hex"
 	DocumentationURL  = "https://aptlantis.net/aamhs"
 	GeneratedBy       = "AAMHS Archive Hasher v2.0"
 	DefaultBaseName   = "snapshot-hashes"
+	PGPSignatureFile  = DefaultBaseName + ".txt.asc"
+	PQSignatureFile   = DefaultBaseName + ".txt.sphincs"
 	DefaultOutputMode = 0o644
 )
 
@@ -22,6 +26,10 @@ type ManifestMetadata struct {
 	SnapshotSizeBytes int64
 	SnapshotDateUTC   time.Time
 	SchemaVersion     string
+	HashProfile       string
+	HashEncoding      string
+	PGPSignatureFile  string
+	PQSignatureFile   string
 	GeneratedBy       string
 	DocumentationURL  string
 }
@@ -30,6 +38,26 @@ func RenderManifest(meta ManifestMetadata, hashes Hashes) string {
 	schemaVersion := meta.SchemaVersion
 	if schemaVersion == "" {
 		schemaVersion = SchemaVersion
+	}
+
+	hashProfile := meta.HashProfile
+	if hashProfile == "" {
+		hashProfile = HashProfile
+	}
+
+	hashEncoding := meta.HashEncoding
+	if hashEncoding == "" {
+		hashEncoding = HashEncoding
+	}
+
+	pgpSignatureFile := meta.PGPSignatureFile
+	if pgpSignatureFile == "" {
+		pgpSignatureFile = PGPSignatureFile
+	}
+
+	pqSignatureFile := meta.PQSignatureFile
+	if pqSignatureFile == "" {
+		pqSignatureFile = PQSignatureFile
 	}
 
 	generatedBy := meta.GeneratedBy
@@ -49,16 +77,22 @@ func RenderManifest(meta ManifestMetadata, hashes Hashes) string {
 		fmt.Sprintf("snapshot_size_bytes: %d", meta.SnapshotSizeBytes),
 		fmt.Sprintf("snapshot_date_utc: %s", meta.SnapshotDateUTC.UTC().Format(time.RFC3339)),
 		fmt.Sprintf("schema_version: %s", schemaVersion),
+		fmt.Sprintf("hash_profile: %s", hashProfile),
+		fmt.Sprintf("hash_encoding: %s", hashEncoding),
 		"",
 		"[Hashes]",
-		fmt.Sprintf("%-15s %s", "SHA-512:", hashes.SHA512),
-		fmt.Sprintf("%-15s %s", "SHA3-512:", hashes.SHA3_512),
-		fmt.Sprintf("%-15s %s", "SHAKE256-512:", hashes.SHAKE256_512),
-		fmt.Sprintf("%-15s %s", "SHAKE256-1024:", hashes.SHAKE256_1024),
-		fmt.Sprintf("%-15s %s", "K12:", hashes.K12),
-		fmt.Sprintf("%-15s %s", "BLAKE3-512:", hashes.BLAKE3_512),
-		fmt.Sprintf("%-15s %s", "BLAKE2bp:", hashes.BLAKE2bp),
-		fmt.Sprintf("%-15s %s", "CRC32:", hashes.CRC32),
+		fmt.Sprintf("%-16s %s", "SHA-512:", hashes.SHA512),
+		fmt.Sprintf("%-16s %s", "SHA3-512:", hashes.SHA3_512),
+		fmt.Sprintf("%-16s %s", "SHAKE256-512:", hashes.SHAKE256_512),
+		fmt.Sprintf("%-16s %s", "SHAKE256-1024:", hashes.SHAKE256_1024),
+		fmt.Sprintf("%-16s %s", "K12-512:", hashes.K12_512),
+		fmt.Sprintf("%-16s %s", "BLAKE3-512:", hashes.BLAKE3_512),
+		fmt.Sprintf("%-16s %s", "BLAKE2bp-512:", hashes.BLAKE2bp_512),
+		fmt.Sprintf("%-16s %s", "CRC32:", hashes.CRC32),
+		"",
+		"[Signatures]",
+		fmt.Sprintf("%-16s %s", "PGP-Signature:", pgpSignatureFile),
+		fmt.Sprintf("%-16s %s", "PQ-Signature:", pqSignatureFile),
 		"",
 		"[Notes]",
 		fmt.Sprintf("Generated-By: %s", generatedBy),

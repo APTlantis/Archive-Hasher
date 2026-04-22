@@ -35,9 +35,9 @@ type Hashes struct {
 	SHA3_512      string
 	SHAKE256_512  string
 	SHAKE256_1024 string
-	K12           string
+	K12_512       string
 	BLAKE3_512    string
-	BLAKE2bp      string
+	BLAKE2bp_512  string
 	CRC32         string
 }
 
@@ -131,9 +131,9 @@ func ComputeArtifactHashes(path string, options HashOptions) (Hashes, int64, err
 		})
 	}
 
-	k12Digest := make([]byte, 32)
+	k12Digest := make([]byte, 64)
 	if _, err := k12Hasher.Read(k12Digest); err != nil {
-		return Hashes{}, 0, fmt.Errorf("finalize K12 hash: %w", err)
+		return Hashes{}, 0, fmt.Errorf("finalize K12-512 hash: %w", err)
 	}
 
 	shake256_512Digest := make([]byte, 64)
@@ -153,9 +153,9 @@ func ComputeArtifactHashes(path string, options HashOptions) (Hashes, int64, err
 		SHA3_512:      hex.EncodeToString(sha3_512Hasher.Sum(nil)),
 		SHAKE256_512:  hex.EncodeToString(shake256_512Digest),
 		SHAKE256_1024: hex.EncodeToString(shake256_1024Digest),
-		K12:           hex.EncodeToString(k12Digest),
+		K12_512:       hex.EncodeToString(k12Digest),
 		BLAKE3_512:    hex.EncodeToString(blake3_512Hasher.Sum(nil)),
-		BLAKE2bp:      hex.EncodeToString(blake2bpDigest),
+		BLAKE2bp_512:  hex.EncodeToString(blake2bpDigest),
 		CRC32:         fmt.Sprintf("%08x", crc32Hasher.Sum32()),
 	}, total, nil
 }

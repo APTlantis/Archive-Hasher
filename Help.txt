@@ -15,7 +15,7 @@ Usage of C:\Users\ADMINI~1\AppData\Local\Temp\go-build3651438502\b001\exe\main.e
   -verbose
         Print progress information
 		
-./Archive-Hasher -output-dir "A:\downloads\python" -verbose "A:\downloads\python\python-complete-1990-2026.tar.zst"
+go run main.go -output-dir "D:\" -verbose "D:\Checked.zip"
 
 
 
@@ -25,12 +25,20 @@ Usage of C:\Users\ADMINI~1\AppData\Local\Temp\go-build3651438502\b001\exe\main.e
 Usage of C:\Users\ADMINI~1\AppData\Local\Temp\go-build2770085841\b001\exe\main.exe:
   -key string
         Path to an ASCII-armored PGP private key
+  -openssl string
+        OpenSSL command path for PQ signing (default "openssl")
   -output string
         Output path for the detached ASCII-armored signature (default: <manifest>.asc)
   -overwrite
-        Overwrite an existing detached signature if present
+        Overwrite existing detached signatures if present
   -passphrase-env string
-        Environment variable that stores the private key passphrase
+        Environment variable that stores the PGP private key passphrase
+  -pq-algorithm string
+        PQ signature algorithm (default "SLH-DSA-SHAKE-256s")
+  -pq-key string
+        Path to an OpenSSL SLH-DSA private key for the PQ detached signature
+  -pq-output string
+        Output path for the armored PQ signature envelope (default: <manifest>.sphincs)
   -verbose
         Print progress information
 		
@@ -39,3 +47,7 @@ Usage of C:\Users\ADMINI~1\AppData\Local\Temp\go-build2770085841\b001\exe\main.e
 		
 		
 ./manifest-signer -key "B:\zypper-operations\Archive-Hasher\AptlantisSigningKey-Private.asc" -overwrite -verbose "A:\downloads\python\snapshot-hashes.txt"
+
+openssl genpkey -algorithm SLH-DSA-SHAKE-256s -out sphincs.key
+openssl pkey -in sphincs.key -pubout -out sphincs.pub
+./manifest-signer -key "B:\zypper-operations\Archive-Hasher\AptlantisSigningKey-Private.asc" -pq-key ".\sphincs.key" -overwrite -verbose "A:\downloads\python\snapshot-hashes.txt"

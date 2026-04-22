@@ -3,4 +3,13 @@
 /_verify-output/
 /test-archive.zip
 /snapshot-hashes.txt.asc
+/snapshot-hashes.txt.sphincs
+/sphincs.key
+/sphincs.pub
+/slh-dsa.key
+/slh-dsa.pub
 /test-archive.zip.aamhs/
+/.idea/
+*.iml
+*.ipr
+*.iws

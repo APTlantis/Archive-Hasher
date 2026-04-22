@@ -23,9 +23,9 @@ Each snapshot MUST generate and publish the following hash set:
 | **SHA3-512** | Sponge | SHA-3 sponge-family digest |
 | **SHAKE256-512** | PQ baseline | 64-byte SHAKE256 XOF output |
 | **SHAKE256-1024** | Long-term archival | 128-byte SHAKE256 XOF output |
-| **K12** | Fast Keccak | KangarooTwelve digest with 32-byte output |
+| **K12-512** | Fast Keccak | KangarooTwelve digest with 64-byte output |
 | **BLAKE3-512** | Fast + strong | BLAKE3 with 64-byte output |
-| **BLAKE2bp** | Parallel ARX diversity | Four-lane BLAKE2b tree hashing |
+| **BLAKE2bp-512** | Parallel ARX diversity | Four-lane BLAKE2b tree hashing |
 | **CRC32** | Legacy/tooling | IEEE CRC-32 for compatibility |
 
 AAMHS v2.0 manifests emit only this suite. AAMHS v1.0 legacy hashes such as SHA256, SHA3-256, BLAKE3-256, and xxHash64 are not included.
@@ -47,33 +47,42 @@ snapshot_format: <zip|tar.zst|tar.gz|tar.xz|torrent|...>
 snapshot_size_bytes: <bytes>
 snapshot_date_utc: <RFC3339 UTC timestamp>
 schema_version: 2.0
+hash_profile: pq-balanced-8
+hash_encoding: hex
 
 [Hashes]
-SHA-512:        <hex>
-SHA3-512:       <hex>
-SHAKE256-512:   <hex>
-SHAKE256-1024:  <hex>
-K12:            <hex>
-BLAKE3-512:     <hex>
-BLAKE2bp:       <hex>
-CRC32:          <hex>
+SHA-512:         <hex>
+SHA3-512:        <hex>
+SHAKE256-512:    <hex>
+SHAKE256-1024:   <hex>
+K12-512:         <hex>
+BLAKE3-512:      <hex>
+BLAKE2bp-512:    <hex>
+CRC32:           <hex>
+
+[Signatures]
+PGP-Signature:   snapshot-hashes.txt.asc
+PQ-Signature:    snapshot-hashes.txt.sphincs
 
 [Notes]
 Generated-By: AAMHS Archive Hasher v2.0
 Documentation: https://aptlantis.net/aamhs
 ```
 
-The manifest MUST NOT embed detached signatures, inline PGP payloads, PQ signature blocks, or upstream package-signing metadata.
+The manifest MUST NOT embed detached signature payloads, inline PGP payloads, PQ signature blocks, or upstream package-signing metadata.
 
 ## 4. Signing
 
-The hasher writes `snapshot-hashes.txt`. The signer then creates an adjacent detached signature:
+The hasher writes `snapshot-hashes.txt`. The signer then creates adjacent detached signatures:
 
 ```text
 snapshot-hashes.txt.asc
+snapshot-hashes.txt.sphincs
 ```
 
-Signing must not regenerate, reinterpret, or mutate the manifest contents.
+`snapshot-hashes.txt.asc` is the detached ASCII-armored PGP signature. `snapshot-hashes.txt.sphincs` is an armored AAMHS PQ signature envelope containing a detached `SLH-DSA-SHAKE-256s` signature over the exact manifest bytes.
+
+The `.sphincs` extension is a legacy-friendly label. The PQ signature envelope uses `base64` for the detached signature payload and records `algorithm: SLH-DSA-SHAKE-256s`, the signed artifact name, and SHA-256 fingerprint of the public key material. Signing must not regenerate, reinterpret, or mutate the manifest contents.
 
 ## 5. Verification
 

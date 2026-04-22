@@ -3,7 +3,7 @@
 `Archive-Hasher` now follows the real AAMHS publication workflow:
 
 1. Hash the published archive artifact and emit `snapshot-hashes.txt`
-2. Sign that manifest with a detached ASCII-armored PGP signature
+2. Sign that manifest with detached PGP and optional SLH-DSA post-quantum signatures
 
 The production implementation is now Go-based and split into two focused CLIs:
 
@@ -45,6 +45,20 @@ This writes:
 C:\Artifacts\python-1990-2025-snapshot.tar.zst.aamhs\snapshot-hashes.txt.asc
 ```
 
+Run the dual signer with OpenSSL 3.5+ native SLH-DSA:
+
+```powershell
+openssl genpkey -algorithm SLH-DSA-SHAKE-256s -out sphincs.key
+openssl pkey -in sphincs.key -pubout -out sphincs.pub
+go run ./cmd/manifest-signer --key "A:\AptWeb\zypper-operations\Archive-Hasher\AptlantisSigningKey-Private.asc" --pq-key ".\sphincs.key" "A:\downloads\python-complete-1990-2025.python.zip.aamhs\snapshot-hashes.txt"
+```
+
+This also writes:
+
+```text
+C:\Artifacts\python-1990-2025-snapshot.tar.zst.aamhs\snapshot-hashes.txt.sphincs
+```
+
 ## Hashing behavior
 
 The hasher streams the archive file and computes the required AAMHS hash suite:
@@ -53,12 +67,12 @@ The hasher streams the archive file and computes the required AAMHS hash suite:
 - `SHA3-512`
 - `SHAKE256-512`
 - `SHAKE256-1024`
-- `K12`
+- `K12-512`
 - `BLAKE3-512`
-- `BLAKE2bp`
+- `BLAKE2bp-512`
 - `CRC32`
 
-The manifest intentionally contains no signing metadata. Signing is now a separate step and a separate tool.
+The manifest includes the standard signature artifact names. Signing is still performed as a separate step and a separate tool.
 
 ## Signer behavior
 
@@ -67,7 +81,6 @@ The manifest intentionally contains no signing metadata. Signing is now a separa
 - hash archives
 - regenerate manifests
 - embed signatures back into the manifest
-- produce PQ signatures
 
 Supported inputs:
 
@@ -75,13 +88,18 @@ Supported inputs:
 - ASCII-armored private key path
 - optional passphrase via environment variable
 - optional signature output path override
+- optional OpenSSL SLH-DSA private key path
+- optional PQ signature output path override
+- optional OpenSSL command path and PQ algorithm override
+
+The default PQ signature algorithm is `SLH-DSA-SHAKE-256s`. `snapshot-hashes.txt.sphincs` is retained as a legacy-friendly filename, while the envelope records `algorithm: SLH-DSA-SHAKE-256s` as the authoritative algorithm identity.
 
 ## Standards
 
 Repo docs now mirror the split workflow:
 
 - [docs/AAMHS-hashing-v2.0.md](docs/AAMHS-hashing-v2.0.md)
-- [docs/AAMHS-signing-v1.0.md](docs/AAMHS-signing-v1.0.md)
+- [docs/AAMHS-signing-v2.0.md](docs/AAMHS-signing-v2.0.md)
 
 ## Testing
 

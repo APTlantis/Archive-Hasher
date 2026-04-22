@@ -1,7 +1,7 @@
 [project]
 id = "ArchiveHasher"
 title = "Archive-Hasher"
-description = "Dual-CLI Go tool implementing the AAMHS publication workflow: hash archive artifacts and sign manifests with PGP"
+description = "Dual-CLI Go tool implementing the AAMHS publication workflow: hash archive artifacts and sign manifests with PGP and SLH-DSA"
 type = "security"
 stage = "active"
 version = "2.0.0"
@@ -22,13 +22,13 @@ services = []
 storage = []
 
 [relationships]
-depends_on_projects = ["Go", "SHA-3", "BLAKE3", "BLAKE2bp", "OpenPGP"]
+depends_on_projects = ["Go", "SHA-3", "BLAKE3", "BLAKE2bp", "OpenPGP", "OpenSSL"]
 used_by_projects = []
 external_dependencies = []
 
 [artifacts]
-produces = ["snapshot-hashes.txt", "snapshot-hashes.txt.asc"]
-consumes = ["archive-artifacts", "pgp-private-key"]
+produces = ["snapshot-hashes.txt", "snapshot-hashes.txt.asc", "snapshot-hashes.txt.sphincs"]
+consumes = ["archive-artifacts", "pgp-private-key", "slh-dsa-private-key"]
 
 [documentation]
 writerside_topic = "archive-hasher.md"

@@ -31,9 +31,9 @@ func TestComputeArtifactHashesGolden(t *testing.T) {
 		SHA3_512:      "8f8a08eecfa7e54f1c9b41fa7fd0a4d534d8d6395df34324dca5ce872eb5eefc715a31b806050a2560179408df7c8f6ac1f808b6c6e0e601bc78e18841cb28e8",
 		SHAKE256_512:  "946c337b10297304b27af4d201d475ae750e0ddc782f103f82f9931abddaa2f837c3d4d7dfed974dc40e338beb1a19cbde912ecf94164ea5b3ce41b50233cb97",
 		SHAKE256_1024: "946c337b10297304b27af4d201d475ae750e0ddc782f103f82f9931abddaa2f837c3d4d7dfed974dc40e338beb1a19cbde912ecf94164ea5b3ce41b50233cb97e5c0b6117c5a6bddbd9a90241b43183ac887c5b9fa46295c29a512afe06b3c83250d2638478020839d09dc5a563a6b8ec0b7bc757de32a7815d6ef76c770d0a9",
-		K12:           "e0c738dce32fffea3fcb8049762a174401bf24663a668448f07edff5430edbfe",
+		K12_512:       "e0c738dce32fffea3fcb8049762a174401bf24663a668448f07edff5430edbfe017eb1e1d83cfe814ccb6a154082da7e22467ed2ffa6e7fa1936c422c535e1b0",
 		BLAKE3_512:    "6e3051a7d9e694a6c25c072ef89a880e4852e7bec042149a897ecbf6033110cfeaa40994c16ac3555d9d1908b5479d4719f0a882742019e7a0594b354d48fdd5",
-		BLAKE2bp:      "a611ad931fc938d9ca899393f86c03cebd8dcb50e0962edc47141f51c6f2e2f33f470050f8db56cacaefab9b44df1012e7f56d3bc83b1c52fc7befedb348c5c4",
+		BLAKE2bp_512:  "a611ad931fc938d9ca899393f86c03cebd8dcb50e0962edc47141f51c6f2e2f33f470050f8db56cacaefab9b44df1012e7f56d3bc83b1c52fc7befedb348c5c4",
 		CRC32:         "68d7b776",
 	}
 
@@ -55,9 +55,9 @@ func TestRenderManifestCanonicalOutput(t *testing.T) {
 		SHA3_512:      "sha3-512-value",
 		SHAKE256_512:  "shake256-512-value",
 		SHAKE256_1024: "shake256-1024-value",
-		K12:           "k12-value",
+		K12_512:       "k12-512-value",
 		BLAKE3_512:    "blake3-512-value",
-		BLAKE2bp:      "blake2bp-value",
+		BLAKE2bp_512:  "blake2bp-512-value",
 		CRC32:         "crc32value",
 	}
 
@@ -69,16 +69,22 @@ func TestRenderManifestCanonicalOutput(t *testing.T) {
 		"snapshot_size_bytes: 35\n" +
 		"snapshot_date_utc: 2025-12-03T17:42:00Z\n" +
 		"schema_version: 2.0\n" +
+		"hash_profile: pq-balanced-8\n" +
+		"hash_encoding: hex\n" +
 		"\n" +
 		"[Hashes]\n" +
-		"SHA-512:        sha512-value\n" +
-		"SHA3-512:       sha3-512-value\n" +
-		"SHAKE256-512:   shake256-512-value\n" +
-		"SHAKE256-1024:  shake256-1024-value\n" +
-		"K12:            k12-value\n" +
-		"BLAKE3-512:     blake3-512-value\n" +
-		"BLAKE2bp:       blake2bp-value\n" +
-		"CRC32:          crc32value\n" +
+		"SHA-512:         sha512-value\n" +
+		"SHA3-512:        sha3-512-value\n" +
+		"SHAKE256-512:    shake256-512-value\n" +
+		"SHAKE256-1024:   shake256-1024-value\n" +
+		"K12-512:         k12-512-value\n" +
+		"BLAKE3-512:      blake3-512-value\n" +
+		"BLAKE2bp-512:    blake2bp-512-value\n" +
+		"CRC32:           crc32value\n" +
+		"\n" +
+		"[Signatures]\n" +
+		"PGP-Signature:   snapshot-hashes.txt.asc\n" +
+		"PQ-Signature:    snapshot-hashes.txt.sphincs\n" +
 		"\n" +
 		"[Notes]\n" +
 		"Generated-By: AAMHS Archive Hasher v2.0\n" +
@@ -138,7 +144,7 @@ func TestComputeArtifactHashesLargeStreaming(t *testing.T) {
 	if progressCalls == 0 {
 		t.Fatal("expected at least one progress callback")
 	}
-	if hashes.K12 == "" || hashes.BLAKE3_512 == "" || hashes.SHAKE256_1024 == "" {
+	if hashes.K12_512 == "" || hashes.BLAKE3_512 == "" || hashes.SHAKE256_1024 == "" {
 		t.Fatal("expected required hashes to be populated")
 	}
 }
