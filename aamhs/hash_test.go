@@ -93,6 +93,9 @@ func TestRenderManifestCanonicalOutput(t *testing.T) {
 	if manifest != expected {
 		t.Fatalf("manifest mismatch:\n%s", manifest)
 	}
+	if bytes.Contains([]byte(manifest), []byte("\r")) {
+		t.Fatal("manifest must use LF line endings only")
+	}
 }
 
 func TestWriteManifestOverwriteProtection(t *testing.T) {
