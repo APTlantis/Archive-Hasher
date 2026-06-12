@@ -1,0 +1,189 @@
+# ArchiveHasher Project Manifest
+# Version: 1.0
+# Last Updated: 2026-05-12
+
+[project]
+id = "archive-hasher"
+title = "ArchiveHasher"
+type = "tool"
+stage = "production"
+version = "1.0"
+description = "Two focused Go CLIs that implement the AAMHS (Archive Authentication and Multi-Hash System) publication workflow. archive-hasher computes a parallel multi-hash suite (8 hashes) for archive files and emits snapshot-hashes.txt; manifest-signer produces detached PGP and optional post-quantum (SLH-DSA) signatures for manifests without modifying them."
+tags = ["cryptography", "hashing", "archive-integrity", "post-quantum", "cli"]
+family = "dataset-pipeline"
+canonical_manifest = true
+
+[metadata]
+created = "2024-03-01"
+last_updated = "2026-05-12"
+last_reviewed = "2026-05-12"
+maintainer = "Herb"
+license = "MIT"
+language_primary = "Go"
+languages_used = ["Go", "Bash"]
+
+[state]
+completion_percent = 90
+stability = "stable"
+active_development = false
+technical_debt = "low"
+maintenance_burden = "low"
+known_gaps = [
+  "WebAssembly bindings",
+  "CUDA acceleration for large archives",
+  "Streaming verification mode"
+]
+
+[runtime]
+platform = "cli"
+environment = "Windows, Linux, macOS"
+services = []
+storage = ["File system"]
+
+[capabilities]
+parallel_hashing = true
+multi_hash_suite = true
+pgp_signing = true
+post_quantum_signing = true
+archive_integrity = true
+manifest_verification = true
+snapshot_generation = true
+
+[interfaces]
+[interfaces.archive_hasher_cli]
+type = "Command Line"
+path = "/cmd/archive-hasher"
+entrypoint = "archive-hasher [options] <archive-file>"
+auth = false
+provider = "Go 1.26"
+
+[interfaces.manifest_signer_cli]
+type = "Command Line"
+path = "/cmd/manifest-signer"
+entrypoint = "manifest-signer [options] <manifest-file>"
+auth = false
+provider = "Go 1.26"
+
+[relationships]
+depends_on_projects = []
+used_by_projects = []
+supersedes = []
+superseded_by = []
+external_dependencies = ["Go 1.26", "GnuPG (for PGP signing)", "liboqs (for SLH-DSA)"]
+related_projects = []
+
+[artifacts]
+produces = ["snapshot-hashes.txt", "PGP detached signature (.sig)", "SLH-DSA signature (.slh-dsa)"]
+consumes = ["Archive files", "Manifest files"]
+
+[[datasets]]
+name = "Hash Algorithm Suite"
+description = "8 parallel hash algorithms used for multi-hash computation"
+format = "Go constants"
+location = "pkg/hasher/algorithms.go"
+
+[persistence]
+primary_store = "File system"
+storage_mode = "stream-based with snapshot output"
+supports_replication = false
+
+[[scripts]]
+name = "archive-hasher"
+language = "Go"
+role = "Computes multi-hash suite for archive files"
+status = "active"
+version = 1
+
+[[scripts]]
+name = "manifest-signer"
+language = "Go"
+role = "Creates detached PGP and post-quantum signatures"
+status = "active"
+version = 1
+
+[[scripts]]
+name = "build.sh"
+language = "Bash"
+role = "Build both binaries"
+status = "active"
+version = 1
+
+[generation]
+manifest_is_canonical = true
+generates_readme = true
+generates_writerside = false
+generates_jsonld = true
+generates_visualizations = false
+generator = "aptlantis-docgen"
+
+[documentation]
+readme = "README.md"
+architecture_doc = "docs/AAMHS-workflow.md"
+generated_sections = true
+
+[schemas]
+produces = [
+  "snapshot-hashes.txt (text format with hash values)",
+  "PGP signature (binary)",
+  "SLH-DSA signature (binary)"
+]
+validates = [
+  "Archive file integrity",
+  "Manifest authenticity",
+  "Signature validity"
+]
+
+[semantic]
+domain = "cryptography"
+primary_concepts = ["archive-integrity", "multi-hash", "digital-signatures", "post-quantum-cryptography"]
+related_domains = ["Security", "Archival Systems", "PKI"]
+cognitive_tags = ["hashing", "signing", "verification", "archive-management", "post-quantum"]
+complexity = "high"
+
+[visual]
+theme = "NeonInk-v0.1.1"
+primary_color = "#00ff00"
+semantic_role = "security-tool"
+contains_svg_assets = false
+contains_scene_art = false
+
+[observability]
+logs = true
+metrics = false
+health_checks = false
+event_stream = false
+telemetry = false
+
+[distribution]
+packaged = true
+package_formats = ["exe", "binary", "deb", "rpm"]
+portable = true
+offline_capable = true
+requires_installation = false
+
+[links]
+repository = "https://github.com/user/ArchiveHasher"
+homepage = "https://aptlantis.net"
+
+[structure]
+repo_path = "E:/ArchiveHasher"
+docs_path = "E:/ArchiveHasher/docs"
+data_path = "E:/ArchiveHasher/testdata"
+
+[automation]
+build = "go build ./cmd/archive-hasher && go build ./cmd/manifest-signer"
+deploy = "gh release create"
+tasks = [
+  "lint",
+  "test",
+  "coverage",
+  "build",
+  "integration-tests"
+]
+
+[notes]
+hash_algorithms = "SHA-256, SHA-384, SHA-512, BLAKE2b, BLAKE3, SHA-1 (legacy), MD5 (legacy), CRC32c"
+aamhs_workflow = "Archive Authentication and Multi-Hash System publication workflow"
+signature_support = "PGP (standard) and SLH-DSA (post-quantum)"
+parallel_execution = "8 hashes computed in parallel for performance"
+snapshot_format = "Plain text format with hash algorithm and hexadecimal value pairs"
