@@ -1,16 +1,4 @@
----
-[project]
-name = "ArchiveHasher"
-slug = "archive-hasher"
-description = "Two focused Go CLIs that implement the AAMHS (Archive Authentication and Multi-Hash System) publication workflow. archive-hasher computes a parallel multi-hash suite (8 hashes) for archive files and emits snapshot-hashes.txt; manifest-signer produces detached PGP and optional post-quantum (SLH-DSA) signatures for manifests without modifying them."
-family = "dataset-pipeline"
-
-[tags]
-languages = ["Go", "Bash"]
-platforms = ["cli"]
----
-
-# 📦 ArchiveHasher
+📦 ArchiveHasher
 
 > Two focused Go CLIs that implement the AAMHS (Archive Authentication and Multi-Hash System) publication workflow. archive-hasher computes a parallel multi-hash suite (8 hashes) for archive files and emits snapshot-hashes.txt; manifest-signer produces detached PGP and optional post-quantum (SLH-DSA) signatures for manifests without modifying them.
 

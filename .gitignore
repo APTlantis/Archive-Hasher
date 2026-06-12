@@ -14,3 +14,7 @@
 *.ipr
 *.iws
 /PLANv1.1.md
+
+# Added by ggshield
+.cache_ggshield
+/keys/
